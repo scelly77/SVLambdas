@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Sample SAM Template for sv-DR-Test
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+
+    # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
+    LoggingConfig:
+      LogFormat: JSON
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./src/HelloWorld/
+      Handler: HelloWorld::HelloWorld.Function::FunctionHandler
+      Runtime: dotnet6
+      Policies:
+      - Statement:  
+        - Sid: EC2Allows
+          Effect: Allow
+          Action:
+          - ec2:DescribeNetworkInterfaces
+          - ec2:DescribeInstances
+          - ec2:DescribeInstanceStatus
+          Resource: '*'
+      Architectures:
+      - x86_64
+      MemorySize: 256
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+          BackupDRServerTag: HUB DR BACKUP
+          ProdInstanceId: i-023051b34cdeda7b0
+          PingAddress: https://hub.securevideo.com
+          DrLaunchTemplateID: lt-08149d8d7de722f93
+            # Events:
+            #   HelloWorld:
+            #     Type: Schedule
+            #     Properties:
+            #       Schedule: 'rate(1 minute)'
+            #       Name: TestSchedule
+            #       Description: test schedule
+            #       Enabled: true
+          # Events:
+          #   HelloWorld:
+          #     Type: Schedule # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          #     Properties:
+          #       Schedule: 'rate(1 minute)'
+          #       Name: TestSch
+          #       Description: testing
+          #       Enabled: true
+        
+
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  # HelloWorldApi:
+  #   Description: API Gateway endpoint URL for Prod stage for Hello World function
+  #   Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  HelloWorldFunction:
+    Description: Hello World Lambda Function ARN
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: Implicit IAM Role created for Hello World function
+    Value: !GetAtt HelloWorldFunctionRole.Arn
