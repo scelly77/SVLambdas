@@ -21,8 +21,10 @@ Resources:
         - Sid: EC2Allows
           Effect: Allow
           Action:
-          - ec2:CreateNetworkInterface
+          - ec2:DescribeNetworkInterfaces
           - ec2:DescribeInstances
+          - ec2:DescribeInstanceStatus
+          - ec2:RunInstances
           Resource: '*'
       Architectures:
       - x86_64

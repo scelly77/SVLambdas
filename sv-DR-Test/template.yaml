@@ -18,7 +18,7 @@ Resources:
     Properties:
       CodeUri: ./src/HelloWorld/
       Handler: HelloWorld::HelloWorld.Function::FunctionHandler
-      Runtime: dotnet6
+      Runtime: dotnet8
       Policies:
       - Statement:  
         - Sid: EC2Allows
@@ -27,6 +27,7 @@ Resources:
           - ec2:DescribeNetworkInterfaces
           - ec2:DescribeInstances
           - ec2:DescribeInstanceStatus
+          - ec2:RunInstances
           Resource: '*'
       Architectures:
       - x86_64

@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  BackupSVServerAMI
+Transform:
+- AWS::Serverless-2016-10-31
+
+# Resources declares the AWS resources that you want to include in the stack
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+Resources:
+  # Each Lambda function is defined by properties:
+  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+
+  # This is a Lambda function config associated with the source code: hello-from-lambda.js
+  SVAMIBackupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/BackupSVServerAMI/
+      Handler: BackupSVServerAMI::SVLambda.SVAMIBackupFunction::FunctionHandler
+      Runtime: dotnet8
+      Architectures:
+      - x86_64
+      MemorySize: 256
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          MaxImageAgeInDays: 10
+          AccountId: 822843877307
+          SecureVideoHubQA: i-0770a69424662d4e7
+          SecureVideoMirthQA: i-0ee213956d6066bc4
+          SecureVideoHubA01: i-023051b34cdeda7b0
+          SecureVideoMirthProd: i-08ce61fc550e94911
+          SecureVideoCatchAll: i-05825312e91721dc6
+      Timeout: 100
+      Description: A Lambda function that returns a static string.
+      Policies:
+      - Statement:  
+        - Sid: EC2Allows
+          Effect: Allow
+          Action:
+          - ec2:DescribeImages
+          - ec2:CreateImage
+          Resource: '*'
+        # Give Lambda basic execution Permission to the helloFromLambda
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    LoggingConfig:
+      LogFormat: JSON

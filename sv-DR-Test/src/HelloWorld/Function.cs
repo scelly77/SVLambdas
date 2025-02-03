@@ -64,6 +64,26 @@ namespace HelloWorld
                     }
 
                     Console.WriteLine("Site not reachable. Moving to next phase of DR...");
+
+                    string instanceId = LaunchDrInstance(drLaunchTemplateID);
+                    if (string.IsNullOrWhiteSpace(instanceId))
+                    {
+                        Console.WriteLine("DR server was not started");
+                        return;
+                    }
+                    
+                    int i=0;
+                    while(!IsDrServerRunning(instanceId) && i++ < 40)
+                    {
+                        Console.WriteLine($"Checking if instance iD {instanceId} is running.. attempt {i}");
+                        await Task.Delay(10000);
+                        //Thread.Sleep(10000);
+                    }
+
+                    if (i >=30)
+                    {
+                        Console.WriteLine($"Unable to detect if instance was started or not in the given time");
+                    }
                 }
             }
             catch (AmazonEC2Exception ec2Exception)
@@ -83,6 +103,34 @@ namespace HelloWorld
          return;
             
         }
+
+        private static string LaunchDrInstance(string launchtemplateID)
+        {
+            RunInstancesRequest request = new RunInstancesRequest();
+            request.MaxCount=1;
+            request.MinCount=1;
+        
+            request.LaunchTemplate = new LaunchTemplateSpecification(){LaunchTemplateId = launchtemplateID};
+            
+            RunInstancesResponse response = _amazonEC2.RunInstancesAsync(request).Result;
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK) 
+            {
+                Instance instance = response.Reservation.Instances[0];
+                Console.WriteLine(@$"Succefully initiated launch of DR instanced with ID {instance.InstanceId}
+                    and  private IP {instance.PrivateIpAddress} and public IP of {instance.PublicIpAddress} and Instance type of {instance.InstanceType}
+                    and tag name of {instance.Tags[2].Value}");
+                return instance.InstanceId;
+            }
+            else
+            {
+                Console.WriteLine(@$"Received status of {response.HttpStatusCode}");
+                return string.Empty;
+            }
+
+        }
+
+   
+        
         private static bool PingWebsite(string siteName)
         {
             int i=0;
