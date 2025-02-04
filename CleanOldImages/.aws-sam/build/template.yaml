@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CleanOldImages
+Transform:
+- AWS::Serverless-2016-10-31
+Resources:
+  CleanImagesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: CleanImagesFunction
+      Handler: ScratchLambda::ScratchLambda.CleanImagesFunction::FunctionHandler
+      Runtime: dotnet8
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      Environment:
+        Variables:
+          AccountId: 822843877307
+          SecureVideoHubQA: i-0770a69424662d4e7
+          SecureVideoMirthQA: i-0ee213956d6066bc4
+          SecureVideoHubA01: i-023051b34cdeda7b0
+          SecureVideoMirthProd: i-08ce61fc550e94911
+          SecureVideoCatchAll: i-05825312e91721dc6
+      Timeout: 100
+      Description: A Lambda function that returns a static string.
+      Policies:
+      - Statement:
+        - Sid: EC2Allows
+          Effect: Allow
+          Action:
+          - ec2:DescribeImages
+          - ec2:DeregisterImage
+          Resource: '*'
+      - AWSLambdaBasicExecutionRole
+    Metadata:
+      SamResourceId: CleanImagesFunction
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+Globals:
+  Function:
+    LoggingConfig:
+      LogFormat: JSON
