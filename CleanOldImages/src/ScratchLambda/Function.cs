@@ -82,8 +82,8 @@ public class CleanImagesFunction
                         DeregisterImageRequest deregReq = new DeregisterImageRequest(){ ImageId = outDatedImages[i].ImageId};
                         try
                         {
-                            //var response = await _amazonEC2.DeregisterImageAsync(deregReq);
-                            //Console.WriteLine($" Response for image deregister for image name {outDatedImages[i].Name} is {response.HttpStatusCode}");
+                            var response1 = await _amazonEC2.DeregisterImageAsync(deregReq);
+                            Console.WriteLine($" Response for image deregister for image name {outDatedImages[i].Name} is {response1.HttpStatusCode}");
                         }
                         catch (Exception ex)
                         {

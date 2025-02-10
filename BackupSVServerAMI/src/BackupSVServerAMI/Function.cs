@@ -102,16 +102,16 @@ namespace SVLambda
                                                                         Name= name,
                                                                         NoReboot = true, 
                                                                         };
-                    // try
-                    // {
-                    //     var response = await _amazonEC2.CreateImageAsync(request1);
-                    //     Console.WriteLine($" Response for image ceation for instance id {instanceId} is {response.HttpStatusCode}");
-                    //     Console.WriteLine($"Initiated image creation for {instanceId} with name {name} and Image Id: {response.ImageId}");
-                    // }
-                    // catch (Exception ex)
-                    // {
-                    //     Console.WriteLine($"exception received. {ex.Message}");
-                    // }  
+                    try
+                    {
+                        var response1 = await _amazonEC2.CreateImageAsync(request1);
+                        Console.WriteLine($" Response for image ceation for instance id {instanceId} is {response1.HttpStatusCode}");
+                        Console.WriteLine($"Initiated image creation for {instanceId} with name {name} and Image Id: {response1.ImageId}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"exception received. {ex.Message}");
+                    }  
                 }
                 else
                 {
