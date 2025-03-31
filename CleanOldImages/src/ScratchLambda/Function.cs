@@ -47,8 +47,8 @@ public class CleanImagesFunction
         _ec2InstanceIdsForBackup.Add("SecureVideoCatchAll",Environment.GetEnvironmentVariable("SecureVideoCatchAll"));
         _ec2InstanceIdsForBackup.Add("SecureVideoHubA01",Environment.GetEnvironmentVariable("SecureVideoHubA01"));
         _ec2InstanceIdsForBackup.Add("SecureVideoMirthProd",Environment.GetEnvironmentVariable("SecureVideoMirthProd"));
-        _ec2InstanceIdsForBackup.Keys.ToList().ForEach(async s=>Console.WriteLine(s));
-        _ec2InstanceIdsForBackup.Values.ToList().ForEach(async s=>Console.WriteLine(s));
+        // _ec2InstanceIdsForBackup.Keys.ToList().ForEach(async s=>Console.WriteLine(s));
+        // _ec2InstanceIdsForBackup.Values.ToList().ForEach(async s=>Console.WriteLine(s));
 
         List<Filter>  filter= new List<Filter>(){ new Filter
         {
@@ -61,7 +61,8 @@ public class CleanImagesFunction
                                                                     ,MaxResults = 100};
 
         var response = await _amazonEC2.DescribeImagesAsync(request);
-        Console.WriteLine(response?.Images?.Count);
+        Console.WriteLine($"Total images found starting with SecureVideo {response?.Images?.Count}");
+
         List<string> instancesUpToDate = new List<string>();
         if (response?.Images?.Count > 0)
         {
@@ -82,6 +83,7 @@ public class CleanImagesFunction
                         DeregisterImageRequest deregReq = new DeregisterImageRequest(){ ImageId = outDatedImages[i].ImageId};
                         try
                         {
+                            Console.WriteLine($"Inside try block to dregister image");
                             var response1 = await _amazonEC2.DeregisterImageAsync(deregReq);
                             Console.WriteLine($" Response for image deregister for image name {outDatedImages[i].Name} is {response1.HttpStatusCode}");
                         }
