@@ -64,6 +64,8 @@ public class CleanImagesFunction
         Console.WriteLine($"Total images found starting with SecureVideo {response?.Images?.Count}");
 
         List<string> instancesUpToDate = new List<string>();
+        //var tasks = new List<Task<DeregisterImageResponse>>();
+
         if (response?.Images?.Count > 0)
         {
             _ec2InstanceIdsForBackup.Keys.ToList().ForEach(async instanceName=>{
@@ -84,7 +86,8 @@ public class CleanImagesFunction
                         try
                         {
                             Console.WriteLine($"Inside try block to dregister image");
-                            var response1 = await _amazonEC2.DeregisterImageAsync(deregReq);
+                            var response1 = _amazonEC2.DeregisterImageAsync(deregReq).Result;
+                            
                             Console.WriteLine($" Response for image deregister for image name {outDatedImages[i].Name} is {response1.HttpStatusCode}");
                         }
                         catch (Exception ex)
